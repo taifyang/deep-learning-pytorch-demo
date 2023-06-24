@@ -1,20 +1,20 @@
 # deep-learning-pytorch-demo
 
 Train, test, export and deployment demo based on Pytorch.
-The models including MLP, LeNet, AlexNet, vgg, GoogleNet, ResNet.
+The models including MLP, LeNet, AlexNet, vgg, GoogleNet and ResNet.
 
 ## simple usage
 ```shell
-## train 
+# train 
 python train.py --models mlp
 
-## test
+# test
 python test.py --models mlp
 
-## export
+# export
 python export.py --models mlp
 
-## deploy
+# deploy
 ./libtorch mlp.pt 1.png
 ```
 
