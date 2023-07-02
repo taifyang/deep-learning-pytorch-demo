@@ -4,7 +4,7 @@ import importlib
 
 
 def parse_args():
-    parser = argparse.ArgumentParser('testing')
+    parser = argparse.ArgumentParser('exporting')
     parser.add_argument('--model',  default='mlp', help='model name [default: mlp]')
     return parser.parse_args()
 
