@@ -8,7 +8,7 @@ import torchvision.transforms.functional
 
 def parse_args():
     parser = argparse.ArgumentParser('testing')
-    parser.add_argument('--model',  default='mlp', help='model name [default: mlp]')
+    parser.add_argument('--model',  default='lenet', help='model name [default: lenet]')
     return parser.parse_args()
 
 

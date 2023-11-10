@@ -9,16 +9,13 @@ Download dataset **mnist** [here](https://github.com/myleott/mnist_png/blob/mast
 ## simple usage
 ```shell
 ## train 
-python train.py --models mlp
+python train.py --models lenet
 
 ## test
-python test.py --models mlp
+python test.py --models lenet
 
 ## export
-python export.py --models mlp
-
-## deploy
-./libtorch mlp.pt 1.png
+python export.py --models lenet --type onnx
 ```
 
 ## Reference By

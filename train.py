@@ -9,7 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser('training')
     parser.add_argument('--batch_size', default=128, type=int, help='batch size in training')
     parser.add_argument('--num_epochs', default=5, type=int, help='number of epoch in training')
-    parser.add_argument('--model',  default='mlp', help='model name [default: mlp]')
+    parser.add_argument('--model',  default='lenet', help='model name [default: lenet]')
     return parser.parse_args()
 
 
