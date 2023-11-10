@@ -1,0 +1,10 @@
+numpy
+opencv-python
+pycuda
+torch
+torchvision
+onnx
+onnx-simplifier
+onnxruntime
+openvino
+tensorrt

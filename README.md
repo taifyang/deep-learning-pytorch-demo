@@ -1,7 +1,15 @@
 # deep-learning-pytorch-demo
 
-Train, test, export and deployment demo based on Pytorch.
+Train, test, export demo based on Pytorch.
 The models including MLP, LeNet, AlexNet, vgg, GoogleNet, ResNet.
+The supported model types including torchscript, onnx, openvino, engine.
+
+## install
+```shell
+git clone https://github.com/taifyang/deep-learning-pytorch-demo  # clone
+cd deep-learning-pytorch-demo
+pip install -r requirements.txt  # install
+```
 
 ## Data Preparation
 Download dataset **mnist** [here](https://github.com/myleott/mnist_png/blob/master/mnist_png.tar.gz)  and save in `./Dataset/mnist_png/`.
@@ -20,3 +28,4 @@ python export.py --models lenet --type onnx
 
 ## Reference By
 [d2l-zh-pytorch](https://zh.d2l.ai/index.html)<br>
+
