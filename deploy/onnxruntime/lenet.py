@@ -5,7 +5,7 @@ import onnxruntime
 
 img = cv2.imread("10.png", 0)
 blob = cv2.dnn.blobFromImage(img, 1/255., size=(28,28), swapRB=True, crop=False)
-onnx_session = onnxruntime.InferenceSession("enet.onnx", providers=['CPUExecutionProvider'])
+onnx_session = onnxruntime.InferenceSession("lenet.onnx", providers=['CPUExecutionProvider'])
 
 input_name=[]
 for node in onnx_session.get_inputs():
