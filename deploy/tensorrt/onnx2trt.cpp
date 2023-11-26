@@ -1,14 +1,16 @@
-#include <NvInfer.h> // ±àÒëÓÃµÄÍ·ÎÄ¼ş
-#include <NvOnnxParser.h> // onnx½âÎöÆ÷µÄÍ·ÎÄ¼ş
-#include <NvInferRuntime.h> // ÍÆÀíÓÃµÄÔËĞĞÊ±Í·ÎÄ¼ş
+#include <NvInfer.h> // ç¼–è¯‘ç”¨çš„å¤´æ–‡ä»¶
+#include <NvOnnxParser.h> // onnxè§£æå™¨çš„å¤´æ–‡ä»¶
+#include <NvInferRuntime.h> // æ¨ç†ç”¨çš„è¿è¡Œæ—¶å¤´æ–‡ä»¶
 
 #include <cuda_runtime.h> // cuda include
 
 #include <stdio.h>
 
 
-inline const char* severity_string(nvinfer1::ILogger::Severity t) {
-	switch (t) {
+inline const char* severity_string(nvinfer1::ILogger::Severity t) 
+{
+	switch (t) 
+	{
 	case nvinfer1::ILogger::Severity::kINTERNAL_ERROR: return "internal_error";
 	case nvinfer1::ILogger::Severity::kERROR:   return "error";
 	case nvinfer1::ILogger::Severity::kWARNING: return "warning";
@@ -18,10 +20,14 @@ inline const char* severity_string(nvinfer1::ILogger::Severity t) {
 	}
 }
 
-class TRTLogger : public nvinfer1::ILogger {
+
+class TRTLogger : public nvinfer1::ILogger 
+{
 public:
-	virtual void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override {
-		if (severity <= Severity::kINFO) {
+	virtual void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override
+	 {
+		if (severity <= Severity::kINFO) 
+		{
 			if (severity == Severity::kWARNING) 
 				printf("\033[33m%s: %s\033[0m\n", severity_string(severity), msg);
 			else if (severity <= Severity::kERROR) 
@@ -33,18 +39,20 @@ public:
 } logger;
 
 
-bool build_model() {
+bool build_model()
+ {
 	TRTLogger logger;
 
-	// ----------------------------- 1. ¶¨Òå builder, config ºÍnetwork -----------------------------
+	// ----------------------------- 1. å®šä¹‰ builder, config å’Œnetwork -----------------------------
 	nvinfer1::IBuilder* builder = nvinfer1::createInferBuilder(logger);
 	nvinfer1::IBuilderConfig* config = builder->createBuilderConfig();
 	nvinfer1::INetworkDefinition* network = builder->createNetworkV2(1);
 
-	// ----------------------------- 2. ÊäÈë£¬Ä£ĞÍ½á¹¹ºÍÊä³öµÄ»ù±¾ĞÅÏ¢ -----------------------------
-	// Í¨¹ıonnxparser½âÎöµÄ½á¹û»áÌî³äµ½networkÖĞ£¬ÀàËÆaddConvµÄ·½Ê½Ìí¼Ó½øÈ¥
+	// ----------------------------- 2. è¾“å…¥ï¼Œæ¨¡å‹ç»“æ„å’Œè¾“å‡ºçš„åŸºæœ¬ä¿¡æ¯ -----------------------------
+	// é€šè¿‡onnxparserè§£æçš„ç»“æœä¼šå¡«å……åˆ°networkä¸­ï¼Œç±»ä¼¼addConvçš„æ–¹å¼æ·»åŠ è¿›å»
 	nvonnxparser::IParser* parser = nvonnxparser::createParser(*network, logger);
-	if (!parser->parseFromFile("lenet.onnx", 1)) {
+	if (!parser->parseFromFile("lenet.onnx", 1))
+	 {
 		printf("Failed to parser onnx\n");
 		return false;
 	}
@@ -53,33 +61,34 @@ bool build_model() {
 	printf("Workspace Size = %.2f MB\n", (1 << 30) / 1024.0f / 1024.0f);
 	config->setMaxWorkspaceSize(1 << 30);
 
-	// --------------------------------- 2.1 ¹ØÓÚprofile ----------------------------------
-	// Èç¹ûÄ£ĞÍÓĞ¶à¸öÊäÈë£¬Ôò±ØĞë¶à¸öprofile
+	// --------------------------------- 2.1 å…³äºprofile ----------------------------------
+	// å¦‚æœæ¨¡å‹æœ‰å¤šä¸ªè¾“å…¥ï¼Œåˆ™å¿…é¡»å¤šä¸ªprofile
 	auto profile = builder->createOptimizationProfile();
 	auto input_tensor = network->getInput(0);
 	int input_channel = input_tensor->getDimensions().d[1];
 
-	// ÅäÖÃÊäÈëµÄ×îĞ¡¡¢×îÓÅ¡¢×î´óµÄ·¶Î§
+	// é…ç½®è¾“å…¥çš„æœ€å°ã€æœ€ä¼˜ã€æœ€å¤§çš„èŒƒå›´
 	profile->setDimensions(input_tensor->getName(), nvinfer1::OptProfileSelector::kMIN, nvinfer1::Dims4(1, input_channel, 28, 28));
 	profile->setDimensions(input_tensor->getName(), nvinfer1::OptProfileSelector::kOPT, nvinfer1::Dims4(1, input_channel, 28, 28));
 	profile->setDimensions(input_tensor->getName(), nvinfer1::OptProfileSelector::kMAX, nvinfer1::Dims4(maxBatchSize, input_channel, 28, 28));
-	// Ìí¼Óµ½ÅäÖÃ
+	// æ·»åŠ åˆ°é…ç½®
 	config->addOptimizationProfile(profile);
 
 	nvinfer1::ICudaEngine * engine = builder->buildEngineWithConfig(*network, *config);
-	if (engine == nullptr) {
+	if (engine == nullptr) 
+	{
 		printf("Build engine failed.\n");
 		return false;
 	}
 
-	// -------------------------- 3. ĞòÁĞ»¯ ----------------------------------
-	// ½«Ä£ĞÍĞòÁĞ»¯£¬²¢´¢´æÎªÎÄ¼ş
+	// -------------------------- 3. åºåˆ—åŒ– ----------------------------------
+	// å°†æ¨¡å‹åºåˆ—åŒ–ï¼Œå¹¶å‚¨å­˜ä¸ºæ–‡ä»¶
 	nvinfer1::IHostMemory* model_data = engine->serialize();
 	FILE* f = fopen("lenet.engine", "wb");
 	fwrite(model_data->data(), 1, model_data->size(), f);
 	fclose(f);
 
-	// Ğ¶ÔØË³Ğò°´ÕÕ¹¹½¨Ë³Ğòµ¹Ğò
+	// å¸è½½é¡ºåºæŒ‰ç…§æ„å»ºé¡ºåºå€’åº
 	model_data->destroy();
 	parser->destroy();
 	engine->destroy();
@@ -90,7 +99,10 @@ bool build_model() {
 	return true;
 }
 
-int main() {
+
+int main() 
+{
 	build_model();
+	
 	return 0;
 }

@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[])
 {
-	Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "cls");
+	Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "lenet");
 	Ort::SessionOptions session_options;
 	session_options.SetIntraOpNumThreads(1);
 	session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
@@ -23,14 +23,22 @@ int main(int argc, char* argv[])
 	Ort::Session session(env, model_path, session_options);
 	Ort::AllocatorWithDefaultOptions allocator;
 
-	size_t num_input_nodes = session.GetInputCount();
-	std::vector<const char*> input_node_names = { "input.1" };
-	std::vector<const char*> output_node_names = { "29" };
+	std::vector<const char*>  input_node_names;
+	for (size_t i = 0; i < session.GetInputCount(); i++)
+	{
+		input_node_names.push_back(session.GetInputName(i, allocator));
+	}
+
+	std::vector<const char*> output_node_names;
+	for (size_t i = 0; i < session.GetOutputCount(); i++)
+	{
+		output_node_names.push_back(session.GetOutputName(i, allocator));
+	}
 
 	const size_t input_tensor_size = 1 * 28 * 28;
 	std::vector<float> input_tensor_values(input_tensor_size);
 
-	cv::Mat image = cv::imread("2.png", 0);
+	cv::Mat image = cv::imread("10.png", 0);
 	image.convertTo(image, CV_32F, 1.0 / 255);
 	for (int i = 0; i < 28; i++)
 	{
@@ -44,10 +52,10 @@ int main(int argc, char* argv[])
 	auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
 	Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_tensor_values.data(), input_tensor_size, input_node_dims.data(), input_node_dims.size());
 
-	std::vector<Ort::Value> ort_inputs;
-	ort_inputs.push_back(std::move(input_tensor));
+	std::vector<Ort::Value> inputs;
+	inputs.push_back(std::move(input_tensor));
 
-	std::vector<Ort::Value> output_tensors = session.Run(Ort::RunOptions{ nullptr }, input_node_names.data(), ort_inputs.data(), input_node_names.size(), output_node_names.data(), output_node_names.size());
+	std::vector<Ort::Value> output_tensors = session.Run(Ort::RunOptions{ nullptr }, input_node_names.data(), inputs.data(), input_node_names.size(), output_node_names.data(), output_node_names.size());
 
 	const float* rawOutput = output_tensors[0].GetTensorData<float>();
 	std::vector<int64_t> outputShape = output_tensors[0].GetTensorTypeAndShapeInfo().GetShape();

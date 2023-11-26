@@ -1,7 +1,7 @@
 // tensorRT include
 #include <NvInfer.h>
 #include <NvInferRuntime.h>
-#include <NvOnnxParser.h> // onnx½âÎöÆ÷µÄÍ·ÎÄ¼ş
+#include <NvOnnxParser.h> // onnxè§£æå™¨çš„å¤´æ–‡ä»¶
 
 // cuda include
 #include <cuda_runtime.h>
@@ -13,8 +13,10 @@
 #include <assert.h>
 
 
-inline const char* severity_string(nvinfer1::ILogger::Severity t) {
-	switch (t) {
+inline const char* severity_string(nvinfer1::ILogger::Severity t) 
+{
+	switch (t) 
+	{
 	case nvinfer1::ILogger::Severity::kINTERNAL_ERROR: return "internal_error";
 	case nvinfer1::ILogger::Severity::kERROR:   return "error";
 	case nvinfer1::ILogger::Severity::kWARNING: return "warning";
@@ -24,10 +26,14 @@ inline const char* severity_string(nvinfer1::ILogger::Severity t) {
 	}
 }
 
-class TRTLogger : public nvinfer1::ILogger {
+
+class TRTLogger : public nvinfer1::ILogger 
+{
 public:
-	virtual void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override {
-		if (severity <= Severity::kINFO) {
+	virtual void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override 
+	{
+		if (severity <= Severity::kINFO) 
+		{
 			if (severity == Severity::kWARNING)
 				printf("\033[33m%s: %s\033[0m\n", severity_string(severity), msg);
 			else if (severity <= Severity::kERROR)
@@ -38,7 +44,9 @@ public:
 	}
 } logger;
 
-std::vector<unsigned char> load_file(const std::string& file) {
+
+std::vector<unsigned char> load_file(const std::string& file) 
+{
 	std::ifstream in(file, std::ios::in | std::ios::binary);
 	if (!in.is_open())
 		return {};
@@ -47,17 +55,19 @@ std::vector<unsigned char> load_file(const std::string& file) {
 	size_t length = in.tellg();
 
 	std::vector<uint8_t> data;
-	if (length > 0) {
+	if (length > 0) 
+	{
 		in.seekg(0, std::ios::beg);
 		data.resize(length);
-
 		in.read((char*)& data[0], length);
 	}
 	in.close();
 	return data;
 }
 
-std::map<std::string, nvinfer1::Weights> loadWeights(const std::string& file){
+
+std::map<std::string, nvinfer1::Weights> loadWeights(const std::string& file)
+{
 	std::cout << "Loading weights: " << file << std::endl;
 
 	// Open weights file
@@ -94,7 +104,9 @@ std::map<std::string, nvinfer1::Weights> loadWeights(const std::string& file){
 	return weightMap;
 }
 
-void build() {
+
+void build() 
+{
 	std::map<std::string, nvinfer1::Weights> mWeightMap = loadWeights("lenet.wts");
 	TRTLogger logger;
 
@@ -134,7 +146,8 @@ void build() {
 	network->markOutput(*output->getOutput(0));
 
 	nvinfer1::ICudaEngine* engine = builder->buildEngineWithConfig(*network, *config);
-	if (engine == nullptr) {
+	if (engine == nullptr) 
+	{
 		printf("Build engine failed.\n");
 		return;
 	}
@@ -151,15 +164,17 @@ void build() {
 	builder->destroy();
 }
 
-void inference() {
-	// ------------------------------ 1. ×¼±¸Ä£ĞÍ²¢¼ÓÔØ   ----------------------------
+void inference() 
+{
+	// ------------------------------ 1. å‡†å¤‡æ¨¡å‹å¹¶åŠ è½½   ----------------------------
 	TRTLogger logger;
 	auto engine_data = load_file("lenet.engine");
-	// Ö´ĞĞÍÆÀíÇ°£¬ĞèÒª´´½¨Ò»¸öÍÆÀíµÄruntime½Ó¿ÚÊµÀı¡£ÓëbuilerÒ»Ñù£¬runtimeĞèÒªlogger£º
+	// æ‰§è¡Œæ¨ç†å‰ï¼Œéœ€è¦åˆ›å»ºä¸€ä¸ªæ¨ç†çš„runtimeæ¥å£å®ä¾‹ã€‚ä¸builerä¸€æ ·ï¼Œruntimeéœ€è¦loggerï¼š
 	nvinfer1::IRuntime* runtime = nvinfer1::createInferRuntime(logger);
-	// ½«Ä£ĞÍ´Ó¶ÁÈ¡µ½engine_dataÖĞ£¬Ôò¿ÉÒÔ¶ÔÆä½øĞĞ·´ĞòÁĞ»¯ÒÔ»ñµÃengine
+	// å°†æ¨¡å‹ä»è¯»å–åˆ°engine_dataä¸­ï¼Œåˆ™å¯ä»¥å¯¹å…¶è¿›è¡Œååºåˆ—åŒ–ä»¥è·å¾—engine
 	nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engine_data.data(), engine_data.size());
-	if (engine == nullptr) {
+	if (engine == nullptr) 
+	{
 		printf("Deserialize cuda engine failed.\n");
 		runtime->destroy();
 		return;
@@ -167,11 +182,11 @@ void inference() {
 
 	nvinfer1::IExecutionContext* execution_context = engine->createExecutionContext();
 	cudaStream_t stream = nullptr;
-	// ´´½¨CUDAÁ÷£¬ÒÔÈ·¶¨Õâ¸öbatchµÄÍÆÀíÊÇ¶ÀÁ¢µÄ
+	// åˆ›å»ºCUDAæµï¼Œä»¥ç¡®å®šè¿™ä¸ªbatchçš„æ¨ç†æ˜¯ç‹¬ç«‹çš„
 	cudaStreamCreate(&stream);
 
-	// ------------------------------ 2. ×¼±¸ºÃÒªÍÆÀíµÄÊı¾İ²¢°áÔËµ½GPU   ----------------------------
-	cv::Mat image = cv::imread("2.png", -1);
+	// ------------------------------ 2. å‡†å¤‡å¥½è¦æ¨ç†çš„æ•°æ®å¹¶æ¬è¿åˆ°GPU   ----------------------------
+	cv::Mat image = cv::imread("10.png", -1);
 	std::vector<uint8_t> fileData(image.cols * image.rows);
 	fileData = (std::vector<uint8_t>)(image.reshape(1, 1));
 	int input_numel = 1 * 1 * image.rows * image.cols;
@@ -191,10 +206,10 @@ void inference() {
 
 	cudaMemcpyAsync(input_data_device, input_data_host, input_numel * sizeof(float), cudaMemcpyHostToDevice, stream);
 
-	// ÓÃÒ»¸öÖ¸ÕëÊı×éÖ¸¶¨inputºÍoutputÔÚgpuÖĞµÄÖ¸Õë
+	// ç”¨ä¸€ä¸ªæŒ‡é’ˆæ•°ç»„æŒ‡å®šinputå’Œoutputåœ¨gpuä¸­çš„æŒ‡é’ˆ
 	float* bindings[] = { input_data_device, output_data_device };
 
-	// ------------------------------ 3. ÍÆÀí²¢½«½á¹û°áÔË»ØCPU   ----------------------------
+	// ------------------------------ 3. æ¨ç†å¹¶å°†ç»“æœæ¬è¿å›CPU   ----------------------------
 	bool success = execution_context->enqueueV2((void**)bindings, stream, nullptr);
 	cudaMemcpyAsync(output_data_host, output_data_device, sizeof(output_data_host), cudaMemcpyDeviceToHost, stream);
 	cudaStreamSynchronize(stream);
@@ -202,15 +217,18 @@ void inference() {
 	int predict_label = std::max_element(output_data_host, output_data_host + 10) - output_data_host;
 	std::cout <<"predict_label: " << predict_label << std::endl;
 
-	// ------------------------------ 4. ÊÍ·ÅÄÚ´æ ----------------------------
+	// ------------------------------ 4. é‡Šæ”¾å†…å­˜ ----------------------------
 	cudaStreamDestroy(stream);
 	execution_context->destroy();
 	engine->destroy();
 	runtime->destroy();
 }
 
-int main() {
+
+int main() 
+{
 	build();
 	inference();
+	
 	return 0;
 }

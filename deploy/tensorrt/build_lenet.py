@@ -12,6 +12,7 @@ net = net.to(device)
 net = torch.load('lenet.pth')  
 weights = net.state_dict()
 
+
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 builder = trt.Builder(TRT_LOGGER)
 network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
@@ -19,6 +20,7 @@ config = builder.create_builder_config()
 runtime = trt.Runtime(TRT_LOGGER)
 config.set_flag(trt.BuilderFlag.REFIT)
 config.max_workspace_size = 1 << 30
+
 
 input_tensor = network.add_input(name="input", dtype=trt.float32, shape=(1, 1, 28, 28))
 
@@ -61,6 +63,7 @@ fc3 = network.add_fully_connected(sigmoid4.get_output(0), num_outputs=10, kernel
 fc3.get_output(0).name = "output"
 network.mark_output(tensor=fc3.get_output(0))
 
+
 plan = builder.build_serialized_network(network, config)
 engine = runtime.deserialize_cuda_engine(plan)
 context = engine.create_execution_context()
@@ -71,6 +74,7 @@ d_input = cuda.mem_alloc(h_input.nbytes)
 d_output = cuda.mem_alloc(h_output.nbytes)
 stream = cuda.Stream()
 
+
 img = cv2.imread("10.png", 0)
 blob = cv2.dnn.blobFromImage(img, 1/255., size=(28,28), swapRB=True, crop=False)
 np.copyto(h_input, blob.ravel())
@@ -80,5 +84,5 @@ with engine.create_execution_context() as context:
     context.execute_async_v2(bindings=[int(d_input), int(d_output)], stream_handle=stream.handle)
     cuda.memcpy_dtoh_async(h_output, d_output, stream)
     stream.synchronize()
-    pred = np.argmax(h_output)
-    print(pred)
+    outputs = np.argmax(h_output)
+    print(outputs)

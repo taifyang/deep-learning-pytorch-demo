@@ -12,8 +12,10 @@
 #include <fstream>
 
 
-inline const char* severity_string(nvinfer1::ILogger::Severity t) {
-	switch (t) {
+inline const char* severity_string(nvinfer1::ILogger::Severity t) 
+{
+	switch (t) 
+	{
 	case nvinfer1::ILogger::Severity::kINTERNAL_ERROR: return "internal_error";
 	case nvinfer1::ILogger::Severity::kERROR:   return "error";
 	case nvinfer1::ILogger::Severity::kWARNING: return "warning";
@@ -23,10 +25,14 @@ inline const char* severity_string(nvinfer1::ILogger::Severity t) {
 	}
 }
 
-class TRTLogger : public nvinfer1::ILogger {
+
+class TRTLogger : public nvinfer1::ILogger 
+{
 public:
-	virtual void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override {
-		if (severity <= Severity::kINFO) {
+	virtual void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override
+	 {
+		if (severity <= Severity::kINFO) 
+		{
 			if (severity == Severity::kWARNING)
 				printf("\033[33m%s: %s\033[0m\n", severity_string(severity), msg);
 			else if (severity <= Severity::kERROR)
@@ -37,7 +43,9 @@ public:
 	}
 } logger;
 
-std::vector<unsigned char> load_file(const std::string& file) {
+
+std::vector<unsigned char> load_file(const std::string& file) 
+{
 	std::ifstream in(file, std::ios::in | std::ios::binary);
 	if (!in.is_open())
 		return {};
@@ -46,17 +54,19 @@ std::vector<unsigned char> load_file(const std::string& file) {
 	size_t length = in.tellg();
 
 	std::vector<uint8_t> data;
-	if (length > 0) {
+	if (length > 0) 
+	{
 		in.seekg(0, std::ios::beg);
 		data.resize(length);
-
 		in.read((char*)& data[0], length);
 	}
 	in.close();
 	return data;
 }
 
-void inference() {
+
+void inference()
+ {
 	// ------------------------------ 1. 准备模型并加载   ----------------------------
 	TRTLogger logger;
 	auto engine_data = load_file("lenet.engine");
@@ -64,7 +74,8 @@ void inference() {
 	nvinfer1::IRuntime* runtime = nvinfer1::createInferRuntime(logger);
 	// 将模型从读取到engine_data中，则可以对其进行反序列化以获得engine
 	nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engine_data.data(), engine_data.size());
-	if (engine == nullptr) {
+	if (engine == nullptr) 
+	{
 		printf("Deserialize cuda engine failed.\n");
 		runtime->destroy();
 		return;
@@ -114,7 +125,10 @@ void inference() {
 	runtime->destroy();
 }
 
-int main() {
+
+int main() 
+{
 	inference();
+	
 	return 0;
 }

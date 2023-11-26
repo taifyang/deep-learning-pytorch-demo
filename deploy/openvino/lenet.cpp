@@ -10,9 +10,9 @@ int main(int argc, char* argv[])
 	auto model = core.compile_model("lenet/lenet_fp16.xml", "CPU");
 	auto iq = model.create_infer_request();
 	auto input = iq.get_input_tensor(0);
-	auto output = iq.get_output_tensor(0);
+	auto outputs = iq.get_output_tensor(0);
 	input.set_shape({ 1, 1, 28, 28 });
-	float* input_data_host = input.data<float>();
+	float* inputs = input.data<float>();
 
 	cv::Mat image = cv::imread("10.png", 0);
 	image.convertTo(image, CV_32F, 1.0 / 255);
@@ -20,13 +20,13 @@ int main(int argc, char* argv[])
 	{
 		for (int j = 0; j < 28; j++)
 		{
-			input_data_host[i * 28 + j] = image.at<float>(i, j);
+			inputs[i * 28 + j] = image.at<float>(i, j);
 		}
 	}
 
 	iq.infer();
 
-	float* prob = output.data<float>();
+	float* prob = outputs.data<float>();
 	int predict_label = std::max_element(prob, prob + 10) - prob;
 	std::cout << predict_label << std::endl;
 
