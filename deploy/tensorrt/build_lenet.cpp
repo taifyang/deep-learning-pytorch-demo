@@ -186,7 +186,7 @@ void inference()
 	cudaStreamCreate(&stream);
 
 	// ------------------------------ 2. 准备好要推理的数据并搬运到GPU   ----------------------------
-	cv::Mat image = cv::imread("10.png", -1);
+	cv::Mat image = cv::imread("10.png", 0);
 	std::vector<uint8_t> fileData(image.cols * image.rows);
 	fileData = (std::vector<uint8_t>)(image.reshape(1, 1));
 	int input_numel = 1 * 1 * image.rows * image.cols;
@@ -215,7 +215,7 @@ void inference()
 	cudaStreamSynchronize(stream);
 
 	int predict_label = std::max_element(output_data_host, output_data_host + 10) - output_data_host;
-	std::cout <<"predict_label: " << predict_label << std::endl;
+	std::cout << predict_label << std::endl;
 
 	// ------------------------------ 4. 释放内存 ----------------------------
 	cudaStreamDestroy(stream);

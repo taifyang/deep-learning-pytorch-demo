@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
 
 	iq.infer();
 
-	float* prob = outputs.data<float>();
-	int predict_label = std::max_element(prob, prob + 10) - prob;
+	float* pred = outputs.data<float>();
+	int predict_label = std::max_element(pred, pred + 10) - pred;
 	std::cout << predict_label << std::endl;
 
 	return 0;

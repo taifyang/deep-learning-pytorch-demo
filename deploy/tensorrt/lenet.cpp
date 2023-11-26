@@ -116,7 +116,7 @@ void inference()
 	cudaStreamSynchronize(stream);
 
 	int predict_label = std::max_element(output_data_host, output_data_host + 10) - output_data_host;
-	std::cout <<"predict_label: " << predict_label << std::endl;
+	std::cout << predict_label << std::endl;
 
 	// ------------------------------ 4. 释放内存 ----------------------------
 	cudaStreamDestroy(stream);
