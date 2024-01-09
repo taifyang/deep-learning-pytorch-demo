@@ -1,8 +1,8 @@
 # deep-learning-pytorch-demo
 
-Train, test, export demo based on Pytorch.
-The models including MLP, LeNet, AlexNet, vgg, GoogleNet, ResNet.
-The supported model types including torchscript, onnx, openvino, engine.
+Train, test, export demo is based on Pytorch.
+The models include MLP, LeNet, AlexNet, vgg, GoogleNet, ResNet.
+The supported model types include torchscript, onnx, openvino, engine.
 
 ## install
 ```shell
