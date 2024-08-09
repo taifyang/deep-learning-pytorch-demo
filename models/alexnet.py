@@ -36,7 +36,8 @@ class AlexNet(torch.nn.Module):
 
     def forward(self, img):
         feature = self.conv(img)
-        output = self.fc(feature.view(img.shape[0], -1))
+        flat = torch.flatten(feature, 1)
+        output = self.fc(flat)
         return output
     
 

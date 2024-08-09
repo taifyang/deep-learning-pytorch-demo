@@ -54,7 +54,7 @@ class GoogleNet(torch.nn.Module):
         out4 = self.b4(out3)
         out5 = self.b5(out4)
         out6 = torch.nn.functional.avg_pool2d(out5, kernel_size=out5.size()[2:])
-        flat = out6.view(out6.shape[0], -1)
+        flat = torch.flatten(out6, 1)
         out = self.fc(flat)
         return out
   

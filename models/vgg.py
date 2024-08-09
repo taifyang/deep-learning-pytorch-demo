@@ -40,7 +40,7 @@ class vgg(torch.nn.Module):
     
     def forward(self, img):       
         feature = self.conv(img)
-        flat = feature.view(feature.shape[0], -1)
+        flat = torch.flatten(feature, 1)
         output = self.fc(flat)
         return output
 

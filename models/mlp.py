@@ -11,7 +11,7 @@ class MLP(torch.nn.Module):
         )
 
     def forward(self, img):
-        flat = img.view(img.shape[0], -1)
+        flat = torch.flatten(img, 1)
         return self.net(flat)
    
     

@@ -55,7 +55,7 @@ class ResNet(torch.nn.Module):
         out3 = self.block3(out2)
         out4 = self.block4(out3)
         pool = torch.nn.functional.avg_pool2d(out4, kernel_size=out4.size()[2:])
-        flat = pool.view(pool.shape[0], -1)
+        flat = torch.flatten(pool, 1)
         out = self.fc(flat)
         return out
 
